@@ -20,7 +20,7 @@ const MessageGenerator: React.FC = () => {
       setMessage("");
 
    
-      const response = await axios.post(BASE_URL+"personalized-message", form);
+      const response = await axios.post(BASE_URL+"messages/personalized-message", form);
 
       
       setForm({
