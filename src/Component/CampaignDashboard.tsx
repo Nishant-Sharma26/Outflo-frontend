@@ -9,6 +9,7 @@ import {
   Stack 
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { BASE_URL } from "../Utils/constant";
 
 interface Campaign {
   _id: string;
@@ -27,12 +28,12 @@ const CampaignDashboard: React.FC = () => {
   const navigate = useNavigate();
 
   const fetchCampaigns = async () => {
-    const response = await axios.get("http://localhost:3000/campaigns");
+    const response = await axios.get(BASE_URL+"campaigns");
     setCampaigns(response.data);
   };
 
   const createCampaign = async () => {
-    await axios.post("http://localhost:3000/campaigns", {
+    await axios.post(BASE_URL+"campaigns", {
       name,
       description,
       status: "ACTIVE",

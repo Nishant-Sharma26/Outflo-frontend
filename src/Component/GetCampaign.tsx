@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { BASE_URL } from '../Utils/constant';
 import {
   TextField,
   Button,
@@ -29,10 +30,10 @@ const GetCampaign: React.FC = () => {
   }, []);
 
   const fetchCampaigns = async () => {
-    const response = await axios.get('http://localhost:3000/campaigns');
+    const response = await axios.get(BASE_URL+'campaigns');
     setCampaigns(response.data);
 
-    // Set up initial editable values
+  
     const initialEditData: Record<string, { leads: string; accountIDs: string }> = {};
     response.data.forEach((campaign: Campaign) => {
       initialEditData[campaign._id] = {
@@ -44,14 +45,14 @@ const GetCampaign: React.FC = () => {
   };
 
   const deleteCampaign = async (id: string) => {
-    await axios.delete(`http://localhost:3000/campaigns/${id}`);
+    await axios.delete(`${BASE_URL}campaigns/${id}`);
     fetchCampaigns();
   };
 
   const toggleStatus = async (id: string, currentStatus: 'ACTIVE' | 'INACTIVE' | 'DELETED') => {
     try {
       const newStatus = currentStatus === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
-      await axios.put(`http://localhost:3000/campaigns/${id}`, { status: newStatus });
+      await axios.put(`${BASE_URL}campaigns/${id}`, { status: newStatus });
       fetchCampaigns();
     } catch (error) {
       console.error('Error updating status:', error);
@@ -60,7 +61,7 @@ const GetCampaign: React.FC = () => {
 
   const updateCampaign = async (id: string) => {
     const data = editData[id];
-    await axios.put(`http://localhost:3000/campaigns/${id}`, {
+    await axios.put(`${BASE_URL}campaigns/${id}`, {
       leads: data.leads.split(',').map((lead) => lead.trim()),
       accountIDs: data.accountIDs.split(',').map((acc) => acc.trim()),
     });

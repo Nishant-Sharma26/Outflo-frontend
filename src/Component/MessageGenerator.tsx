@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { TextField, Button, Typography, Box, Stack } from "@mui/material";
+import { BASE_URL } from "../Utils/constant";
 
 const MessageGenerator: React.FC = () => {
   const [form, setForm] = useState({
@@ -18,10 +19,10 @@ const MessageGenerator: React.FC = () => {
       setLoading(true);
       setMessage("");
 
-      // Send the form data directly to the backend
-      const response = await axios.post("http://localhost:3000/personalized-message", form);
+   
+      const response = await axios.post(BASE_URL+"personalized-message", form);
 
-      // Set the response data back to the form and message state
+      
       setForm({
         name: response.data.name,
         job_title: response.data.job_title,

@@ -8,9 +8,9 @@ import GetCampaign from "./Component/GetCampaign";
 
 function App() {
   return (
-    <Router> {/* Wrap your application in BrowserRouter */}
+    <Router> 
       <Navbar />
-      <Routes> {/* Define your routes using Routes and Route */}
+      <Routes> 
         <Route path="/" element={<CampaignDashboard />} />
         <Route path="/get-campaigns" element={<GetCampaign/>}/>
         <Route path="/message-generator" element={<MessageGenerator />} />
