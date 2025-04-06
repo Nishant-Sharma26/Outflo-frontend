@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { TextField, Button, Typography, Box, Stack } from "@mui/material";
+import { TextField, Button, Typography, Box, Stack, Divider } from "@mui/material";
 import { BASE_URL } from "../Utils/constant";
 
 const MessageGenerator: React.FC = () => {
   const [form, setForm] = useState({
+    linkedin_url: "",
     name: "",
     job_title: "",
     company: "",
@@ -19,11 +20,21 @@ const MessageGenerator: React.FC = () => {
       setLoading(true);
       setMessage("");
 
-   
-      const response = await axios.post(BASE_URL+"messages/personalized-message", form);
+      // Prepare the payload based on what's filled
+      const payload = {
+        ...(form.linkedin_url && { linkedin_url: form.linkedin_url }),
+        ...(form.name && { name: form.name }),
+        ...(form.job_title && { job_title: form.job_title }),
+        ...(form.company && { company: form.company }),
+        ...(form.location && { location: form.location }),
+        ...(form.summary && { summary: form.summary }),
+      };
 
-      
+      const response = await axios.post(BASE_URL + "messages/personalized-message", payload);
+
+      // Update form with response data (useful when using LinkedIn URL)
       setForm({
+        linkedin_url: form.linkedin_url, // Preserve the URL input
         name: response.data.name,
         job_title: response.data.job_title,
         company: response.data.company,
@@ -33,7 +44,7 @@ const MessageGenerator: React.FC = () => {
       setMessage(response.data.message);
     } catch (error) {
       console.error("Error generating message:", error);
-      setMessage("Something went wrong.");
+      setMessage("Something went wrong. Please check your input and try again.");
     } finally {
       setLoading(false);
     }
@@ -47,7 +58,20 @@ const MessageGenerator: React.FC = () => {
 
       <Stack spacing={2}>
         <Typography variant="body2" color="textSecondary">
-          Enter your details manually:
+          Option 1: Enter LinkedIn Profile URL
+        </Typography>
+        <TextField
+          label="LinkedIn URL"
+          value={form.linkedin_url}
+          onChange={(e) => setForm({ ...form, linkedin_url: e.target.value })}
+          fullWidth
+          placeholder="https://linkedin.com/in/username"
+        />
+
+        <Divider sx={{ my: 2 }}>OR</Divider>
+
+        <Typography variant="body2" color="textSecondary">
+          Option 2: Enter details manually
         </Typography>
 
         <TextField

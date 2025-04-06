@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import axios from "axios";
 import { 
   Button, 
@@ -6,9 +6,11 @@ import {
   Paper, 
   Typography, 
   Box, 
-  Stack 
+  Stack,
+  CircularProgress
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css"; // Import toast styles
 import { BASE_URL } from "../Utils/constant";
 
 interface Campaign {
@@ -25,26 +27,47 @@ const CampaignDashboard: React.FC = () => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [leads, setLeads] = useState("");
-  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false); // Loading state
 
-  const fetchCampaigns = async () => {
-    const response = await axios.get(BASE_URL+"campaigns");
-    setCampaigns(response.data);
-  };
+  // Memoize fetchCampaigns (optional, only if you plan to use it)
+  const fetchCampaigns = useCallback(async () => {
+    try {
+      const response = await axios.get(`${BASE_URL}campaigns`);
+      setCampaigns(response.data);
+    } catch (error) {
+      toast.error("Failed to fetch campaigns");
+    }
+  }, []);
 
-  const createCampaign = async () => {
-    await axios.post(BASE_URL+"campaigns", {
-      name,
-      description,
-      status: "ACTIVE",
-      leads: leads.split(",").map((lead) => lead.trim()), // converts comma-separated leads to array
-      accountIDs: []
-    });
-    setName("");
-    setDescription("");
-    setLeads("");
-    navigate("/get-campaigns");
-  };
+  // Memoize createCampaign for performance
+  const createCampaign = useCallback(async () => {
+    if (!name || !description || !leads) {
+      toast.error("Please fill in all fields");
+      return;
+    }
+
+    setLoading(true); // Start loading
+    try {
+      await axios.post(`${BASE_URL}campaigns`, {
+        name,
+        description,
+        status: "ACTIVE",
+        leads: leads.split(",").map((lead) => lead.trim()), 
+        accountIDs: [],
+      });
+      toast.success("Campaign created successfully!"); // Success toast
+      // Clear fields only on success
+      setName("");
+      setDescription("");
+      setLeads("");
+      // Optionally fetch updated campaigns
+      // fetchCampaigns();
+    } catch (error) {
+      toast.error("Failed to create campaign"); // Error toast
+    } finally {
+      setLoading(false); // Stop loading
+    }
+  }, [name, description, leads]);
 
   return (
     <Box 
@@ -54,9 +77,15 @@ const CampaignDashboard: React.FC = () => {
       minHeight="100vh" 
       bgcolor="#F2EFE7"
     >
-      <Paper elevation={4} sx={{ padding: 4, width: 400 ,    bgcolor: "#FFF7F3",
-    borderRadius: 2
-}}>
+      <Paper 
+        elevation={4} 
+        sx={{ 
+          padding: 4, 
+          width: 400, 
+          bgcolor: "#FFF7F3",
+          borderRadius: 2 
+        }}
+      >
         <Typography variant="h5" gutterBottom align="center">
           Create a New Campaign
         </Typography>
@@ -67,6 +96,7 @@ const CampaignDashboard: React.FC = () => {
             value={name} 
             onChange={(e) => setName(e.target.value)} 
             fullWidth 
+            disabled={loading} // Disable during loading
           />
           <TextField 
             label="Description" 
@@ -76,6 +106,7 @@ const CampaignDashboard: React.FC = () => {
             fullWidth 
             multiline 
             rows={3}
+            disabled={loading}
           />
           <TextField 
             label="Leads (comma separated)" 
@@ -83,16 +114,27 @@ const CampaignDashboard: React.FC = () => {
             value={leads} 
             onChange={(e) => setLeads(e.target.value)} 
             fullWidth 
+            disabled={loading}
           />
           <Button 
             variant="contained" 
             color="primary" 
             onClick={createCampaign}
+            disabled={loading} // Disable button while loading
+            startIcon={loading ? <CircularProgress size={20} /> : null} // Show spinner
           >
-            Create Campaign
+            {loading ? "Creating..." : "Create Campaign"}
           </Button>
         </Stack>
       </Paper>
+      <ToastContainer 
+        position="top-right" 
+        autoClose={3000} 
+        hideProgressBar={false} 
+        closeOnClick 
+        pauseOnHover 
+        draggable 
+      />
     </Box>
   );
 };

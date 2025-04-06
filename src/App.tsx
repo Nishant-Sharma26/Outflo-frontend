@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";  // Import necessary components from react-router-dom
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";  
 import CampaignDashboard from "./Component/CampaignDashboard";
 import MessageGenerator from "./Component/MessageGenerator";
 import Navbar from "./Component/Navbar";
